@@ -1,0 +1,6 @@
+{
+    "configuration": "usb=serial,speed=600,opt=o2std,keys=en-us",
+    "board": "teensy:avr:teensy41",
+    "port": "/dev/tty.usbmodem121387801",
+    "sketch": "teensy_distance_predictor_degree17.ino"
+}
