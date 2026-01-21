@@ -1,16 +1,16 @@
 /*
- * Teensy 4.1 Polynomial Regression Model (Degree 17) - Double Precision
- * Auto-generated from: models/20250721_233056/polynomial_degree17_mae0.90.joblib
- * Generated on: 2025-07-27 15:45:01
- * 
- * Model Information:
- * - Polynomial Degree: 17
- * - Feature Count: 171
- * - Input Features: 2 (under_y, theta)
- * - Training MAE: 0.239984
- * - Validation MAE: 0.900133
- * 
- * Precision: Double precision (64-bit) for extreme value handling
+ * Teensy 4.1 多項式回帰モデル (17次) - 倍精度版
+ * 自動生成元: models/20250721_233056/polynomial_degree17_mae0.90.joblib
+ * 生成日時: 2025-07-27 15:45:01
+ *
+ * モデル情報:
+ * - 多項式次数: 17
+ * - 特徴量数: 171
+ * - 入力特徴量: 2 (under_y, theta)
+ * - 学習MAE: 0.239984
+ * - 検証MAE: 0.900133
+ *
+ * 精度: 極値処理のための倍精度 (64ビット)
  */
 
 #ifndef TEENSY_POLYNOMIAL_MODEL_H
@@ -18,15 +18,15 @@
 
 #include <Arduino.h>
 
-// Model metadata constants
+// モデルメタデータ定数
 const int POLY_DEGREE = 17;
 const int FEATURE_COUNT = 171;
 const int INPUT_FEATURES = 2;
 
-// Use double precision for critical calculations to match PC precision
+// PC版と同等の精度を確保するため、重要な計算には倍精度を使用
 #define USE_DOUBLE_PRECISION 1
 
-// Model coefficients (stored in Flash memory as double precision)
+// モデル係数 (倍精度でFlashメモリに格納)
 const double MODEL_COEFFICIENTS[FEATURE_COUNT] PROGMEM = {
       1.988765567298e+03,  -8.908337042422e+01,  -3.914992005999e+00,   1.010355533849e+03,
      -1.137322208843e+02,   5.604585617965e+00,  -3.086525318328e+04,   2.123998239843e+03,
@@ -73,10 +73,10 @@ const double MODEL_COEFFICIENTS[FEATURE_COUNT] PROGMEM = {
       4.806863600281e+03,  -2.399948494537e+02,   2.055721946866e+02
 };
 
-// Model intercept (double precision)
+// モデル切片 (倍精度)
 const double MODEL_INTERCEPT = 2.754938017587604e+01;
 
-// StandardScaler mean values (stored in Flash memory as double precision)
+// StandardScaler平均値 (倍精度でFlashメモリに格納)
 const double SCALER_MEAN[FEATURE_COUNT] PROGMEM = {
       1.000000000000e+00,   6.050000000000e+01,   2.695832218750e+00,   4.900500000000e+03,
       1.743028103437e+02,   5.413365356223e+02,   4.465505000000e+05,   1.471136651772e+04,
@@ -123,7 +123,7 @@ const double SCALER_MEAN[FEATURE_COUNT] PROGMEM = {
       4.817174685446e+27,   2.642661031887e+27,   9.810215044775e+26
 };
 
-// StandardScaler scale values (stored in Flash memory as double precision)
+// StandardScalerスケール値 (倍精度でFlashメモリに格納)
 const double SCALER_SCALE[FEATURE_COUNT] PROGMEM = {
       1.000000000000e+00,   3.521718330588e+01,   2.310993345448e+01,   4.403274718888e+03,
       1.801889132094e+03,   5.308276093665e+02,   5.081666036942e+05,   1.776437569574e+05,
@@ -170,22 +170,22 @@ const double SCALER_SCALE[FEATURE_COUNT] PROGMEM = {
       5.576837994351e+28,   2.489142305678e+28,   1.117910341917e+28
 };
 
-// Function prototypes for Teensy 4.1 optimized prediction pipeline (Double precision only)
+// Teensy 4.1最適化予測パイプライン用関数プロトタイプ (倍精度のみ)
 float predict_distance_teensy(float under_y, float theta);
 void generate_polynomial_features_double(float under_y, float theta, double* features);
 void apply_standard_scaling_double(double* features);
 double compute_linear_combination_double(const double* features);
 
-// Utility functions for debugging and testing
+// デバッグ・テスト用ユーティリティ関数
 void print_model_info();
 void print_feature_values_double(const double* features);
 bool validate_input_range(float under_y, float theta);
 
-// Memory and performance optimization macros
+// メモリ・パフォーマンス最適化マクロ
 #define TEENSY_INLINE __attribute__((always_inline)) inline
 #define TEENSY_FAST __attribute__((optimize("O2")))
 
-// Input validation constants
+// 入力検証用定数
 const float UNDER_Y_MIN = -100.0f;
 const float UNDER_Y_MAX = 100.0f;
 const float THETA_MIN = -180.0f;

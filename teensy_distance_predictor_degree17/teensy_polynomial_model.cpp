@@ -1,62 +1,62 @@
 /*
- * Teensy 4.1 Polynomial Regression Model Implementation (Degree 17)
- * Auto-generated from: models/20250721_233056/polynomial_degree17_mae0.90.joblib
- * Generated on: 2025-07-27 15:11:00
- * 
- * Optimized for ARM Cortex-M7 with hardware FPU
- * Target execution time: <100 microseconds
- * Memory usage: ~3KB Flash, ~1KB RAM
+ * Teensy 4.1 多項式回帰モデル実装 (17次)
+ * 自動生成元: models/20250721_233056/polynomial_degree17_mae0.90.joblib
+ * 生成日時: 2025-07-27 15:11:00
+ *
+ * ARM Cortex-M7 ハードウェアFPU向けに最適化
+ * 目標実行時間: 100マイクロ秒未満
+ * メモリ使用量: Flash約3KB、RAM約1KB
  */
 
 #include "teensy_polynomial_model.h"
 #include <pgmspace.h>
 
-// Main prediction function optimized for Teensy 4.1 (Double precision only)
+// Teensy 4.1向けに最適化されたメイン予測関数 (倍精度のみ)
 TEENSY_FAST float predict_distance_teensy(float under_y, float theta) {
-    // Input validation
+    // 入力値検証
     if (!validate_input_range(under_y, theta)) {
-        return -1.0f;  // Error indicator
+        return -1.0f;  // エラー指標
     }
-    
-    // Use double precision for all calculations to ensure maximum accuracy
+
+    // 最大精度を確保するため、全計算に倍精度を使用
     double features[FEATURE_COUNT];
-    
-    // Generate polynomial features with double precision
+
+    // 倍精度で多項式特徴量を生成
     generate_polynomial_features_double(under_y, theta, features);
-    
-    // Apply StandardScaler normalization with double precision
+
+    // 倍精度でStandardScaler正規化を適用
     apply_standard_scaling_double(features);
-    
-    // Compute final prediction with double precision and Kahan summation
+
+    // 倍精度とKahan総和法で最終予測を計算
     return (float)compute_linear_combination_double(features);
 }
 
-// Double precision polynomial feature generation for accuracy
+// 精度確保のための倍精度多項式特徴量生成
 TEENSY_FAST void generate_polynomial_features_double(float under_y, float theta, double* features) {
-    // Use double precision to match PC scikit-learn precision
+    // PC版scikit-learnの精度と一致させるため倍精度を使用
     double under_y_d = (double)under_y;
     double theta_d = (double)theta;
-    
-    // Pre-compute powers with double precision
-    double under_y_powers[18];  // 0 to 17
-    double theta_powers[18];    // 0 to 17
-    
+
+    // 倍精度でべき乗を事前計算
+    double under_y_powers[18];  // 0から17
+    double theta_powers[18];    // 0から17
+
     under_y_powers[0] = 1.0;
     theta_powers[0] = 1.0;
     under_y_powers[1] = under_y_d;
     theta_powers[1] = theta_d;
-    
-    // Compute higher powers with improved numerical stability
-    // Use direct multiplication for better precision with extreme values
+
+    // 数値安定性を向上させた高次べき乗の計算
+    // 極値での精度向上のため直接乗算を使用
     for (int i = 2; i <= 17; i++) {
         under_y_powers[i] = under_y_powers[i-1] * under_y_d;
         theta_powers[i] = theta_powers[i-1] * theta_d;
     }
 
-    // Generate all 171 features in scikit-learn order with improved precision
-    features[0] = 1.0;  // bias
-    features[1] = under_y_d;  // under_y^1 * theta^0 (direct assignment for precision)
-    features[2] = theta_d;    // under_y^0 * theta^1 (direct assignment for precision)
+    // scikit-learn順序で171個の全特徴量を精度向上して生成
+    features[0] = 1.0;  // バイアス項
+    features[1] = under_y_d;  // under_y^1 * theta^0 (精度のため直接代入)
+    features[2] = theta_d;    // under_y^0 * theta^1 (精度のため直接代入)
     features[3] = under_y_powers[2] * theta_powers[0];  // under_y^2 * theta^0
     features[4] = under_y_powers[1] * theta_powers[1];  // under_y^1 * theta^1
     features[5] = under_y_powers[0] * theta_powers[2];  // under_y^0 * theta^2
@@ -397,9 +397,9 @@ TEENSY_FAST void generate_polynomial_features_double(float under_y, float theta,
     features[170] = under_y_powers[0] * theta_powers[17];  // under_y^0 * theta^17
 }
 
-// Double precision StandardScaler transformation
+// 倍精度StandardScaler変換
 TEENSY_FAST void apply_standard_scaling_double(double* features) {
-    // Direct access is more efficient on Teensy 4.1 ARM Cortex-M7
+    // Teensy 4.1 ARM Cortex-M7では直接アクセスがより効率的
     for (int i = 0; i < FEATURE_COUNT; i++) {
         double mean = SCALER_MEAN[i];
         double scale = SCALER_SCALE[i];
@@ -407,35 +407,35 @@ TEENSY_FAST void apply_standard_scaling_double(double* features) {
     }
 }
 
-// Double precision linear combination with Kahan summation for accuracy
+// 精度確保のためのKahan総和法による倍精度線形結合
 TEENSY_FAST double compute_linear_combination_double(const double* features) {
-    // Use Kahan summation algorithm for improved numerical accuracy
+    // 数値精度向上のためKahan総和アルゴリズムを使用
     double sum = MODEL_INTERCEPT;
-    double c = 0.0;  // Compensation for lost low-order bits
-    
+    double c = 0.0;  // 下位ビット欠落の補償値
+
     for (int i = 0; i < FEATURE_COUNT; i++) {
         double coeff = MODEL_COEFFICIENTS[i];
         double product = coeff * features[i];
-        
-        // Kahan summation
+
+        // Kahan総和法
         double y = product - c;
         double t = sum + y;
         c = (t - sum) - y;
         sum = t;
     }
-    
+
     return sum;
 }
 
 
 
-// Input validation function
+// 入力検証関数
 bool validate_input_range(float under_y, float theta) {
     return (under_y >= UNDER_Y_MIN && under_y <= UNDER_Y_MAX &&
             theta >= THETA_MIN && theta <= THETA_MAX);
 }
 
-// Debug utility functions
+// デバッグ用ユーティリティ関数
 void print_model_info() {
     Serial.println("=== Teensy 4.1 Polynomial Model Info (Degree 17) ===");
     Serial.print("Polynomial Degree: "); Serial.println(POLY_DEGREE);
